@@ -24,9 +24,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 import com.naimrlet.eventfinder.ui.theme.EventFinderTheme
 
 class MainActivity : ComponentActivity() {
@@ -37,31 +39,95 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: EventViewModel by viewModels()
             var showForm by remember { mutableStateOf(false) }
+            var isLoggedIn by remember { mutableStateOf(false) }
 
             EventFinderTheme {
-                Scaffold(
-                    topBar = { TopBarMain(TopAppBarDefaults.enterAlwaysScrollBehavior()) },
-                    floatingActionButton = {
-                        AddEventButton(onClick = { showForm = true })
-                    },
-                    content = { innerPadding ->
-                        ScrollContent(viewModel, innerPadding)
-                    }
-                )
-
-                if (showForm) {
-                    AddEventForm(
-                        onDismiss = { showForm = false },
-                        onSubmit = { event ->
-                            viewModel.addEvent(event) // Save event to Firebase
-                            showForm = false
+                if (!isLoggedIn) {
+                    // Show the LoginScreen if the user is not logged in
+                    LoginScreen(onLoginSuccess = { isLoggedIn = true })
+                } else {
+                    // Show the main content of your app if logged in
+                    Scaffold(
+                        topBar = { TopBarMain(TopAppBarDefaults.enterAlwaysScrollBehavior()) },
+                        floatingActionButton = {
+                            AddEventButton(onClick = { showForm = true })
+                        },
+                        content = { innerPadding ->
+                            ScrollContent(viewModel, innerPadding)
                         }
                     )
+
+                    if (showForm) {
+                        AddEventForm(
+                            onDismiss = { showForm = false },
+                            onSubmit = { event ->
+                                viewModel.addEvent(event) // Save event to Firebase
+                                showForm = false
+                            }
+                        )
+                    }
                 }
             }
         }
     }
+
+    @Composable
+    fun LoginScreen(onLoginSuccess: () -> Unit) {
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
+        val auth = FirebaseAuth.getInstance()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Login", style = MaterialTheme.typography.headlineMedium)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                modifier = Modifier.fillMaxWidth(),
+                visualTransformation = PasswordVisualTransformation()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    auth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                onLoginSuccess() // Notify success
+                            } else {
+                                // Handle login failure (e.g., show an error message)
+                            }
+                        }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Login")
+            }
+        }
+    }
 }
+
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
