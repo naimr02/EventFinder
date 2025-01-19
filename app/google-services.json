@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "401768901782",
+    "project_id": "eventfinder-ac81c",
+    "storage_bucket": "eventfinder-ac81c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401768901782:android:31036581508f5de1c826b7",
+        "android_client_info": {
+          "package_name": "com.naimrlet.eventfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEcZcPlV4n3xnpGENDr1j2-MdZQ9qn1a8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

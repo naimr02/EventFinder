@@ -4,15 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -28,24 +32,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            EventFinderTheme {
-                // Create a scroll behavior for the TopAppBar
-                val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            val viewModel: EventViewModel by viewModels()
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior() // Define scroll behavior
 
+            EventFinderTheme {
                 Scaffold(
-                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), // Connect scroll behavior to Scaffold
                     topBar = { TopBarMain(scrollBehavior) }, // Pass scroll behavior to TopBarMain
-                    floatingActionButton = {
-                        AddEventButton(onClick = { /* Handle FAB click */ })
-                    },
+                    floatingActionButton = { AddEventButton(onClick = { /* Handle FAB click */ }) },
                     content = { innerPadding ->
-                        ScrollContent(innerPadding) // Pass innerPadding to avoid overlap with FAB and top bar
+                        ScrollContent(viewModel, innerPadding) // Pass ViewModel and innerPadding
                     }
                 )
             }
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,21 +70,24 @@ fun TopBarMain(scrollBehavior: TopAppBarScrollBehavior) {
 }
 
 @Composable
-fun ScrollContent(innerPadding: PaddingValues) {
+fun ScrollContent(viewModel: EventViewModel, innerPadding: PaddingValues) {
+    val events by viewModel.events.collectAsState()
+
     LazyColumn(
-        modifier = Modifier.padding(innerPadding) // Apply padding to avoid overlap with FAB and top bar
+        modifier = Modifier.padding(innerPadding) // Apply padding here
     ) {
-        items(20) { index -> // Generate 20 EventCards
-            EventCard() // Replace text with EventCard
+        items(events) { event ->
+            EventCard(event)
         }
     }
 }
 
+
 @Composable
-fun EventCard() {
+fun EventCard(event: Event) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier.fillMaxWidth().padding(8.dp) // Make the card span full width and add padding around it.
+        modifier = Modifier.fillMaxWidth().padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Top Row: Username and Faculty Name
@@ -91,12 +97,12 @@ fun EventCard() {
             ) {
                 Column {
                     Text(
-                        text = "Username",
+                        text = event.username,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "Faculty name",
+                        text = event.facultyName,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -111,27 +117,36 @@ fun EventCard() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Placeholder for image or shapes
+            // Placeholder for image or shapes (optional)
             Box(
                 modifier = Modifier.fillMaxWidth().height(80.dp).background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
-            ) {
-                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
-                    Box(
-                        modifier = Modifier.size(24.dp).background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                    )
-                    Box(
-                        modifier = Modifier.size(24.dp).background(MaterialTheme.colorScheme.primary, shape = RectangleShape)
-                    )
-                }
-            }
+            ) { /* Add image or placeholder here */ }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Event details: Name, Location, Time, Description
-            Text(text = "Event name", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(text = "Location, Time", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(text = "Description of event", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                text = event.eventName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = event.locationTime,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = event.description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -148,6 +163,7 @@ fun EventCard() {
     }
 }
 
+
 @Composable
 fun AddEventButton(onClick: () -> Unit) {
     FloatingActionButton(
@@ -155,13 +171,5 @@ fun AddEventButton(onClick: () -> Unit) {
         containerColor = MaterialTheme.colorScheme.primary // Set FAB color here if needed.
     ) {
         Icon(Icons.Filled.Add, contentDescription = "Add event")
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EventCardPreview() {
-    EventFinderTheme {
-        EventCard()
     }
 }
