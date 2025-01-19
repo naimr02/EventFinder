@@ -92,8 +92,8 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarMain(scrollBehavior: TopAppBarScrollBehavior) {
-    MediumTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
@@ -104,9 +104,11 @@ fun TopBarMain(scrollBehavior: TopAppBarScrollBehavior) {
                 overflow = TextOverflow.Ellipsis
             )
         },
-        scrollBehavior = scrollBehavior // Set scroll behavior here
+        scrollBehavior = scrollBehavior // Pass the scroll behavior here
     )
 }
+
+
 
 @Composable
 fun ScrollContent(viewModel: EventViewModel, innerPadding: PaddingValues) {
