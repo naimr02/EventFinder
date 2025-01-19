@@ -6,4 +6,7 @@ data class Event(
     val eventName: String = "",
     val locationTime: String = "",
     val description: String = ""
-)
+) {
+    // No-argument constructor required by Firebase
+    constructor() : this("", "", "", "", "")
+}

@@ -17,6 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -33,21 +36,32 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: EventViewModel by viewModels()
-            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior() // Define scroll behavior
+            var showForm by remember { mutableStateOf(false) }
 
             EventFinderTheme {
                 Scaffold(
-                    topBar = { TopBarMain(scrollBehavior) }, // Pass scroll behavior to TopBarMain
-                    floatingActionButton = { AddEventButton(onClick = { /* Handle FAB click */ }) },
+                    topBar = { TopBarMain(TopAppBarDefaults.enterAlwaysScrollBehavior()) },
+                    floatingActionButton = {
+                        AddEventButton(onClick = { showForm = true })
+                    },
                     content = { innerPadding ->
-                        ScrollContent(viewModel, innerPadding) // Pass ViewModel and innerPadding
+                        ScrollContent(viewModel, innerPadding)
                     }
                 )
+
+                if (showForm) {
+                    AddEventForm(
+                        onDismiss = { showForm = false },
+                        onSubmit = { event ->
+                            viewModel.addEvent(event) // Save event to Firebase
+                            showForm = false
+                        }
+                    )
+                }
             }
         }
     }
 }
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,16 +174,5 @@ fun EventCard(event: Event) {
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun AddEventButton(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = { onClick() },
-        containerColor = MaterialTheme.colorScheme.primary // Set FAB color here if needed.
-    ) {
-        Icon(Icons.Filled.Add, contentDescription = "Add event")
     }
 }
