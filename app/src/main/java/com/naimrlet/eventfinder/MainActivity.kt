@@ -40,11 +40,23 @@ class MainActivity : ComponentActivity() {
             val viewModel: EventViewModel by viewModels()
             var showForm by remember { mutableStateOf(false) }
             var isLoggedIn by remember { mutableStateOf(false) }
+            var showSignUp by remember { mutableStateOf(false) } // Add state to show SignUpScreen
 
             EventFinderTheme {
                 if (!isLoggedIn) {
-                    // Use the new LoginScreen implementation
-                    LoginScreen(onLoginSuccess = { isLoggedIn = true })
+                    if (showSignUp) {
+                        // Show the SignUpScreen
+                        SignUpScreen(onSignUpSuccess = {
+                            isLoggedIn = true
+                            showSignUp = false
+                        })
+                    } else {
+                        // Show the LoginScreen
+                        LoginScreen(
+                            onLoginSuccess = { isLoggedIn = true },
+                            onSignUpClick = { showSignUp = true } // Handle navigation to SignUpScreen
+                        )
+                    }
                 } else {
                     // Show the main content of your app if logged in
                     Scaffold(
@@ -71,6 +83,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 
 

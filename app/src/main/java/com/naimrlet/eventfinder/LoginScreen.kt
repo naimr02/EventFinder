@@ -2,6 +2,7 @@ package com.naimrlet.eventfinder
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -44,8 +46,10 @@ class LoginViewModel : ViewModel() {
 }
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add onSignUpClick parameter
     val loginViewModel: LoginViewModel = viewModel()
+    val context = LocalContext.current
+
     val auth = FirebaseAuth.getInstance()
 
     Surface(
@@ -100,7 +104,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                                 if (task.isSuccessful) {
                                     onLoginSuccess()
                                 } else {
-                                    // Handle login failure (e.g., show a snackbar or error message)
+                                    Toast.makeText(context, "Email or Username is incorrect", Toast.LENGTH_SHORT).show()
                                 }
                             }
                     }
@@ -110,9 +114,17 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             ) {
                 Text("Login", style = MaterialTheme.typography.labelLarge)
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Sign-Up Button
+            TextButton(onClick = onSignUpClick) { // Use the onSignUpClick parameter here
+                Text("Don't have an account? Sign Up")
+            }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
