@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
             EventFinderTheme {
                 if (!isLoggedIn) {
-                    // Show the LoginScreen if the user is not logged in
+                    // Use the new LoginScreen implementation
                     LoginScreen(onLoginSuccess = { isLoggedIn = true })
                 } else {
                     // Show the main content of your app if logged in
@@ -67,60 +67,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-            }
-        }
-    }
-
-    @Composable
-    fun LoginScreen(onLoginSuccess: () -> Unit) {
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        val auth = FirebaseAuth.getInstance()
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text("Login", style = MaterialTheme.typography.headlineMedium)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            TextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                onLoginSuccess() // Notify success
-                            } else {
-                                // Handle login failure (e.g., show an error message)
-                            }
-                        }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Login")
             }
         }
     }
