@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: EventViewModel by viewModels()
             var isLoggedIn by remember { mutableStateOf(false) }
+            var showForm by remember { mutableStateOf(false) }
             var showSignUp by remember { mutableStateOf(false) }
             var showQRScanner by remember { mutableStateOf(false) } // State to control QRScanner visibility
             var scannedUrl by remember { mutableStateOf("") } // Store scanned URL
@@ -49,10 +50,17 @@ class MainActivity : ComponentActivity() {
 
             EventFinderTheme {
                 if (!isLoggedIn) {
-                    LoginScreen(
-                        onLoginSuccess = { isLoggedIn = true },
-                        onSignUpClick = { showSignUp = true }
-                    )
+                    if (showSignUp) {
+                        SignUpScreen(onSignUpSuccess = {
+                            isLoggedIn = true
+                            showSignUp = false
+                        })
+                    } else {
+                        LoginScreen(
+                            onLoginSuccess = { isLoggedIn = true },
+                            onSignUpClick = { showSignUp = true }
+                        )
+                    }
                 } else {
                     Scaffold(
                         topBar = {
@@ -67,6 +75,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                        },
+                        floatingActionButton = {
+                            AddEventButton(onClick = { showForm = true })
                         },
                         content = { innerPadding ->
                             when {
@@ -86,7 +97,18 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     )
+
+                    if (showForm) {
+                        AddEventForm(
+                            onDismiss = { showForm = false },
+                            onSubmit = { event: Event ->
+                                viewModel.addEvent(event)
+                                showForm = false
+                            }
+                        )
+                    }
                 }
+
             }
         }
     }
