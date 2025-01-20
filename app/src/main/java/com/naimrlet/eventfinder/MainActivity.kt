@@ -42,29 +42,29 @@ class MainActivity : ComponentActivity() {
             val viewModel: EventViewModel by viewModels()
             var showForm by remember { mutableStateOf(false) }
             var isLoggedIn by remember { mutableStateOf(false) }
-            var showSignUp by remember { mutableStateOf(false) } // Add state to show SignUpScreen
+            var showSignUp by remember { mutableStateOf(false) }
 
             EventFinderTheme {
                 if (!isLoggedIn) {
                     if (showSignUp) {
-                        // Show the SignUpScreen
                         SignUpScreen(onSignUpSuccess = {
                             isLoggedIn = true
                             showSignUp = false
                         })
                     } else {
-                        // Show the LoginScreen
                         LoginScreen(
                             onLoginSuccess = { isLoggedIn = true },
-                            onSignUpClick = {
-                                showSignUp = true
-                            } // Handle navigation to SignUpScreen
+                            onSignUpClick = { showSignUp = true }
                         )
                     }
                 } else {
-                    // Show the main content of your app if logged in
                     Scaffold(
-                        topBar = { TopBarMain(TopAppBarDefaults.enterAlwaysScrollBehavior()) },
+                        topBar = {
+                            TopBarMain(
+                                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                                onLogoutClick = { isLoggedIn = false } // Handle logout
+                            )
+                        },
                         floatingActionButton = {
                             AddEventButton(onClick = { showForm = true })
                         },
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                         AddEventForm(
                             onDismiss = { showForm = false },
                             onSubmit = { event: Event ->
-                                viewModel.addEvent(event) // Save event to Firebase
+                                viewModel.addEvent(event)
                                 showForm = false
                             }
                         )

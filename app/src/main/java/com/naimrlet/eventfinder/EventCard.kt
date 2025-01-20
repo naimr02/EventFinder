@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -96,7 +95,7 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Google Maps Section: Replace Placeholder with Map Preview
+            // Google Maps Preview
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
