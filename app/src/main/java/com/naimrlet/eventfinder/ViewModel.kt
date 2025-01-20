@@ -1,5 +1,6 @@
 package com.naimrlet.eventfinder
 
+import Event
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,18 +23,20 @@ class EventViewModel : ViewModel() {
     private fun fetchEvents() {
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val eventList =
-                    mutableListOf<Event>() // Parse snapshot into Event objects list.
+                val eventList = mutableListOf<Event>()
                 for (eventSnapshot in snapshot.children) {
-                    val event =
-                        eventSnapshot.getValue(Event::class.java) // Deserialize Firebase data.
-                    if (event != null) eventList.add(event)
+                    val event = eventSnapshot.getValue(Event::class.java)
+                    if (event != null) {
+                        event.id = eventSnapshot.key // Assign Firebase key as the ID
+                        eventList.add(event)
+                    }
                 }
-                _events.value =
-                    eventList // Update state with the fetched list of events.
+                _events.value = eventList
             }
 
-            override fun onCancelled(error: DatabaseError) {}
+            override fun onCancelled(error: DatabaseError) {
+                // Handle error (e.g., log it)
+            }
         })
     }
 
@@ -42,6 +45,12 @@ class EventViewModel : ViewModel() {
             if (!task.isSuccessful) {
                 // Handle failure (e.g., log error or show message)
             }
+        }
+    }
+
+    fun deleteEvent(event: Event) {
+        event.id?.let { id ->
+            database.child(id).removeValue() // Use the Firebase key to delete the event
         }
     }
 }

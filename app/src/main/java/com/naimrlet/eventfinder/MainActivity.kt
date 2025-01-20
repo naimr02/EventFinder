@@ -1,5 +1,6 @@
 package com.naimrlet.eventfinder
 
+import Event
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -54,7 +56,9 @@ class MainActivity : ComponentActivity() {
                         // Show the LoginScreen
                         LoginScreen(
                             onLoginSuccess = { isLoggedIn = true },
-                            onSignUpClick = { showSignUp = true } // Handle navigation to SignUpScreen
+                            onSignUpClick = {
+                                showSignUp = true
+                            } // Handle navigation to SignUpScreen
                         )
                     }
                 } else {
@@ -72,7 +76,7 @@ class MainActivity : ComponentActivity() {
                     if (showForm) {
                         AddEventForm(
                             onDismiss = { showForm = false },
-                            onSubmit = { event ->
+                            onSubmit = { event: Event ->
                                 viewModel.addEvent(event) // Save event to Firebase
                                 showForm = false
                             }
@@ -83,10 +87,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,38 +109,42 @@ fun TopBarMain(scrollBehavior: TopAppBarScrollBehavior) {
 }
 
 
-
 @Composable
 fun ScrollContent(viewModel: EventViewModel, innerPadding: PaddingValues) {
     val events by viewModel.events.collectAsState()
 
     LazyColumn(
-        modifier = Modifier.padding(innerPadding) // Apply padding here
+        modifier = Modifier.padding(innerPadding)
     ) {
         items(events) { event ->
-            EventCard(event)
+            EventCard(event, onDelete = { viewModel.deleteEvent(it) })
         }
     }
 }
 
-
 @Composable
-fun EventCard(event: Event) {
+fun EventCard(event: Event, onDelete: (Event) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+
     ElevatedCard(
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        modifier = Modifier.fillMaxWidth().padding(8.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Top Row: Username and Faculty Name
+            // Header: Username and Faculty Name
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(
                         text = event.username,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = event.facultyName,
@@ -148,58 +152,87 @@ fun EventCard(event: Event) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                IconButton(onClick = { /* Handle menu click */ }) {
+                IconButton(onClick = { expanded = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "More options"
                     )
                 }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            expanded = false
+                            onDelete(event)
+                        }
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Placeholder for image or shapes (optional)
+            // Image Placeholder
             Box(
-                modifier = Modifier.fillMaxWidth().height(80.dp).background(MaterialTheme.colorScheme.surfaceVariant),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
-            ) { /* Add image or placeholder here */ }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = "Event Image",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(48.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Event details: Name, Location, Time, Description
-            Text(
-                text = event.eventName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = event.locationTime,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = event.description,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
+            // Event Details: Event Name, Location, Time, Description
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = event.eventName,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = event.locationTime,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = event.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Bottom Row: Buttons (More Info and Join Event)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { /* Handle more info click */ }) {
+            // Buttons: "More Info" and "Join Event"
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                OutlinedButton(onClick = { /* Handle More Info */ }) {
                     Text("More info")
                 }
-                Button(onClick = { /* Handle join event click */ }) {
+                Button(onClick = { /* Handle Join Event */ }) {
                     Text("Join event")
                 }
             }
         }
     }
 }
+
+

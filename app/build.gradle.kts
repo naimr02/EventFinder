@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    implementation("androidx.compose.material:material-icons-extended:1.5.3")
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
     testImplementation(libs.junit)
