@@ -28,7 +28,7 @@ fun TopBarMain(
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         title = {
-            Text("UiTM Event Finder", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("NoMeritGo", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         actions = {
             // QR Scan Button
@@ -41,7 +41,7 @@ fun TopBarMain(
             // Logout Button
             IconButton(onClick = onLogoutClick) { // Handle logout logic
                 Icon(
-                    imageVector = Icons.Default.ExitToApp,
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                     contentDescription = "Logout"
                 )
             }
