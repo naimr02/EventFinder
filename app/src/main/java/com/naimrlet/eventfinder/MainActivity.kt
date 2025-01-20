@@ -1,6 +1,7 @@
 package com.naimrlet.eventfinder
 
 import Event
+import QRScanner
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -40,48 +41,51 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val viewModel: EventViewModel by viewModels()
-            var showForm by remember { mutableStateOf(false) }
             var isLoggedIn by remember { mutableStateOf(false) }
             var showSignUp by remember { mutableStateOf(false) }
+            var showQRScanner by remember { mutableStateOf(false) } // State to control QRScanner visibility
+            var scannedUrl by remember { mutableStateOf("") } // Store scanned URL
+            var showWebView by remember { mutableStateOf(false) } // State to control WebView visibility
 
             EventFinderTheme {
                 if (!isLoggedIn) {
-                    if (showSignUp) {
-                        SignUpScreen(onSignUpSuccess = {
-                            isLoggedIn = true
-                            showSignUp = false
-                        })
-                    } else {
-                        LoginScreen(
-                            onLoginSuccess = { isLoggedIn = true },
-                            onSignUpClick = { showSignUp = true }
-                        )
-                    }
+                    LoginScreen(
+                        onLoginSuccess = { isLoggedIn = true },
+                        onSignUpClick = { showSignUp = true }
+                    )
                 } else {
                     Scaffold(
                         topBar = {
                             TopBarMain(
                                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                                onLogoutClick = { isLoggedIn = false } // Handle logout
+                                onLogoutClick = { isLoggedIn = false },
+                                onQRScanClick = {
+                                    // Toggle QR Scanner visibility
+                                    showQRScanner = !showQRScanner
+                                    if (showQRScanner) {
+                                        showWebView = false // Hide WebView when opening QR Scanner
+                                    }
+                                }
                             )
                         },
-                        floatingActionButton = {
-                            AddEventButton(onClick = { showForm = true })
-                        },
                         content = { innerPadding ->
-                            ScrollContent(viewModel, innerPadding)
+                            when {
+                                showQRScanner -> {
+                                    QRScanner(onQRCodeScanned = { url ->
+                                        showQRScanner = false // Hide QR scanner after scanning
+                                        scannedUrl = url
+                                        showWebView = true // Show WebView with scanned URL
+                                    })
+                                }
+                                showWebView -> {
+                                    WebViewScreen(url = scannedUrl)
+                                }
+                                else -> {
+                                    ScrollContent(viewModel, innerPadding)
+                                }
+                            }
                         }
                     )
-
-                    if (showForm) {
-                        AddEventForm(
-                            onDismiss = { showForm = false },
-                            onSubmit = { event: Event ->
-                                viewModel.addEvent(event)
-                                showForm = false
-                            }
-                        )
-                    }
                 }
             }
         }

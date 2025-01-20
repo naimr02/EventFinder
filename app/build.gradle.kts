@@ -66,4 +66,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // CameraX dependencies
+    implementation ("androidx.camera:camera-core:1.3.0-alpha07")
+    implementation ("androidx.camera:camera-camera2:1.3.0-alpha07")
+    implementation ("androidx.camera:camera-lifecycle:1.3.0-alpha07")
+    implementation ("androidx.camera:camera-view:1.3.0-alpha07")
+
+    // ML Kit Barcode Scanning dependency
+    implementation ("com.google.mlkit:barcode-scanning:17.3.0")
+
+    // For coroutines support with CameraX
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.6.2")
+
 }

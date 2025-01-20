@@ -2,6 +2,7 @@ package com.naimrlet.eventfinder
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,27 +17,35 @@ import androidx.compose.ui.text.style.TextOverflow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarMain(scrollBehavior: TopAppBarScrollBehavior, onLogoutClick: () -> Unit) {
+fun TopBarMain(
+    scrollBehavior: TopAppBarScrollBehavior,
+    onLogoutClick: () -> Unit,
+    onQRScanClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             titleContentColor = MaterialTheme.colorScheme.primary,
         ),
         title = {
-            Text(
-                "UiTM Event Finder",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Text("UiTM Event Finder", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         actions = {
-            IconButton(onClick = onLogoutClick) {
+            // QR Scan Button
+            IconButton(onClick = onQRScanClick) { // Trigger state change for QR scanner
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ExitToApp, // Use a logout icon
+                    imageVector = Icons.Default.CameraAlt, // Use a camera icon
+                    contentDescription = "Scan QR Code"
+                )
+            }
+            // Logout Button
+            IconButton(onClick = onLogoutClick) { // Handle logout logic
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
                     contentDescription = "Logout"
                 )
             }
         },
-        scrollBehavior = scrollBehavior // Pass the scroll behavior here
+        scrollBehavior = scrollBehavior
     )
 }
