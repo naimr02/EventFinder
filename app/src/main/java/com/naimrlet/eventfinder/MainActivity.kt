@@ -2,6 +2,12 @@ package com.naimrlet.eventfinder
 
 import Event
 import QRScanner
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -19,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationCompat
 import com.naimrlet.eventfinder.ui.theme.EventFinderTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +41,7 @@ class MainActivity : ComponentActivity() {
             var showQRScanner by remember { mutableStateOf(false) }
             var scannedUrl by remember { mutableStateOf("") }
             var showWebView by remember { mutableStateOf(false) }
+            var eventAdded by remember { mutableStateOf(false) }
 
             EventFinderTheme {
                 if (!isLoggedIn) {
@@ -107,14 +115,65 @@ class MainActivity : ComponentActivity() {
                             onDismiss = { showForm = false },
                             onSubmit = { event: Event ->
                                 viewModel.addEvent(event)
-                                showForm = false
+                                eventAdded = true // Set flag to trigger notification
+
+                                // Show notification for the newly added event.
+                                showNotification(
+                                    context = this@MainActivity,
+                                    title = "New Event Added",
+                                    body = "New event has been successfully added! Check out NoMeritGo ASAP!"
+                                )
+
+                                showForm = false // Close the form after submission.
                             }
                         )
+                    }
+
+                    if (eventAdded) {
+                        eventAdded = false // Reset state after showing notification.
                     }
                 }
 
             }
         }
+    }
+
+    private fun showNotification(context: Context, title: String, body: String) {
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val channelId = "event_notifications"
+
+        // Create notification channel for Android O+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Event Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Create intent to open MainActivity when notification is clicked.
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+        // Build notification.
+        val builder = NotificationCompat.Builder(context, channelId)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setSmallIcon(R.drawable.logo) // Replace with your actual icon resource ID.
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+
+        // Show notification.
+        notificationManager.notify(0, builder.build())
     }
 }
 
@@ -130,5 +189,3 @@ fun ScrollContent(viewModel: EventViewModel, innerPadding: PaddingValues) {
         }
     }
 }
-
-
