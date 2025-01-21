@@ -39,6 +39,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 @Composable
 fun EventCard(event: Event, onDelete: (Event) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    var showMoreInfo by remember { mutableStateOf(false) } // State for showing the dialog
 
     val locationLatLng: LatLng? =
         event.location.takeIf { it.isNotBlank() }?.let { location ->
@@ -47,7 +48,6 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
             if (parts.size == 2) LatLng(parts[0], parts[1]) else null
         }
 
-    // Remember camera position state for Google Map
     val cameraPositionState = rememberCameraPositionState {
         position = locationLatLng?.let {
             CameraPosition.fromLatLngZoom(it, 12f)
@@ -71,7 +71,6 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
                     Text(text = event.username, style = MaterialTheme.typography.bodyLarge)
                     Text(text = event.facultyName, style = MaterialTheme.typography.bodySmall)
                 }
-                // Wrap IconButton and DropdownMenu in a Box for proper anchoring
                 Box {
                     IconButton(onClick = { expanded = true }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = "More options")
@@ -89,7 +88,6 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
                         )
                     }
                 }
-
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -98,7 +96,7 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp) // Adjust height as needed for better visibility
+                    .height(150.dp)
             ) {
                 if (locationLatLng != null) {
                     GoogleMap(
@@ -108,7 +106,6 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
                         Marker(state = MarkerState(position = locationLatLng))
                     }
                 } else {
-                    // Show a fallback text if no location is provided
                     Text(
                         text = "No Location Available",
                         modifier = Modifier.align(Alignment.Center),
@@ -120,26 +117,43 @@ fun EventCard(event: Event, onDelete: (Event) -> Unit) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Event Details Section: Event Name, Description, etc.
+            // Event Details Section
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = event.eventName, style = MaterialTheme.typography.titleMedium)
-                Text(text = event.description, style = MaterialTheme.typography.bodySmall)
             }
 
-            Spacer(modifier=Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Buttons Section: "More Info" and "Join Event"
+            // Buttons Section
             Row(
-                modifier=Modifier.fillMaxWidth(),
-                horizontalArrangement=Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                OutlinedButton(onClick={ /* Handle More Info */ }) {
+                OutlinedButton(onClick = { showMoreInfo = true }) { // Show the dialog
                     Text("More Info")
                 }
-                Button(onClick={ /* Handle Join Event */ }) {
+                Button(onClick = { /* Handle Join Event */ }) {
                     Text("Join Event")
                 }
             }
         }
+    }
+
+    // Dialog for More Info
+    if (showMoreInfo) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showMoreInfo = false },
+            title = {
+                Text(text = "Program Details")
+            },
+            text = {
+                Text(text = event.description) // Display the description here
+            },
+            confirmButton = {
+                Button(onClick = { showMoreInfo = false }) {
+                    Text("Close")
+                }
+            }
+        )
     }
 }
