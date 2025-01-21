@@ -3,6 +3,7 @@ package com.naimrlet.eventfinder
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.Image
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,16 +46,21 @@ class LoginViewModel : ViewModel() {
     }
 }
 
+
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add onSignUpClick parameter
+fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) {
     val loginViewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
+
+    BackHandler(enabled = true) {
+        // Optionally handle app exit confirmation here
+    }
 
     val auth = FirebaseAuth.getInstance()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background // MD3 background color
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -63,16 +69,14 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add 
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Logo Image
             Image(
-                painter = painterResource(id = R.drawable.logo), // Replace "logo" with your file name
+                painterResource(id = R.drawable.logo),
                 contentDescription = "Universiti Teknologi MARA Logo",
                 modifier = Modifier.size(150.dp)
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Email TextField with Validation
             ValidatingInputTextField(
                 value = loginViewModel.email,
                 updateState = { input -> loginViewModel.updateEmail(input) },
@@ -83,7 +87,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password TextField with Validation
             ValidatingInputTextField(
                 value = loginViewModel.password,
                 updateState = { input -> loginViewModel.updatePassword(input) },
@@ -95,7 +98,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add 
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Login Button styled with Material Design 3 colors and typography
             Button(
                 onClick = {
                     if (!loginViewModel.emailHasErrors && !loginViewModel.passwordHasErrors) {
@@ -117,13 +119,13 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onSignUpClick: () -> Unit) { // Add 
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sign-Up Button
-            TextButton(onClick = onSignUpClick) { // Use the onSignUpClick parameter here
+            TextButton(onClick = onSignUpClick) {
                 Text("Don't have an account? Sign Up")
             }
         }
     }
 }
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -4,18 +4,13 @@ import Event
 import QRScanner
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -23,15 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.naimrlet.eventfinder.ui.theme.EventFinderTheme
 
 class MainActivity : ComponentActivity() {
@@ -44,17 +31,22 @@ class MainActivity : ComponentActivity() {
             var isLoggedIn by remember { mutableStateOf(false) }
             var showForm by remember { mutableStateOf(false) }
             var showSignUp by remember { mutableStateOf(false) }
-            var showQRScanner by remember { mutableStateOf(false) } // State to control QRScanner visibility
-            var scannedUrl by remember { mutableStateOf("") } // Store scanned URL
-            var showWebView by remember { mutableStateOf(false) } // State to control WebView visibility
+            var showQRScanner by remember { mutableStateOf(false) }
+            var scannedUrl by remember { mutableStateOf("") }
+            var showWebView by remember { mutableStateOf(false) }
 
             EventFinderTheme {
                 if (!isLoggedIn) {
                     if (showSignUp) {
-                        SignUpScreen(onSignUpSuccess = {
-                            isLoggedIn = true
-                            showSignUp = false
-                        })
+                        SignUpScreen(
+                            onSignUpSuccess = {
+                                isLoggedIn = true
+                                showSignUp = false
+                            },
+                            onBackToLogin = {
+                                showSignUp = false // Navigate back to Login Screen
+                            }
+                        )
                     } else {
                         LoginScreen(
                             onLoginSuccess = { isLoggedIn = true },
@@ -62,13 +54,25 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 } else {
+                    // Handle back navigation when logged in
+                    BackHandler(enabled = true) {
+                        if (showQRScanner) {
+                            showQRScanner = false // Close QR Scanner
+                        } else if (showForm) {
+                            showForm = false // Close Event Form
+                        } else if (showWebView) {
+                            showWebView = false // Close WebView
+                        } else {
+                            isLoggedIn = false // Log out and return to Login Screen
+                        }
+                    }
+
                     Scaffold(
                         topBar = {
                             TopBarMain(
                                 scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
                                 onLogoutClick = { isLoggedIn = false },
                                 onQRScanClick = {
-                                    // Toggle QR Scanner visibility
                                     showQRScanner = !showQRScanner
                                     if (showQRScanner) {
                                         showWebView = false // Hide WebView when opening QR Scanner

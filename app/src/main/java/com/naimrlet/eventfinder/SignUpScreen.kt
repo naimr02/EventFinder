@@ -1,5 +1,6 @@
 package com.naimrlet.eventfinder
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,11 +15,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun SignUpScreen(onSignUpSuccess: () -> Unit) {
+fun SignUpScreen(onSignUpSuccess: () -> Unit, onBackToLogin: () -> Unit) {
     val signUpViewModel: SignUpViewModel = viewModel()
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Handle back navigation to Login Screen
+    BackHandler(enabled = true) {
+        onBackToLogin() // Trigger navigation back to Login Screen
+    }
 
     Column(
         modifier = Modifier
