@@ -1,4 +1,4 @@
-package com.naimrlet.eventfinder
+package com.naimrlet.eventfinder.auth
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*

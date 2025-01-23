@@ -1,3 +1,5 @@
+package com.naimrlet.eventfinder.home
+
 import android.Manifest
 import android.content.Context
 import android.util.Log

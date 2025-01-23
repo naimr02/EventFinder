@@ -1,3 +1,5 @@
+package com.naimrlet.eventfinder.event
+
 data class Event(
     val username: String = "",
     val facultyName: String = "",

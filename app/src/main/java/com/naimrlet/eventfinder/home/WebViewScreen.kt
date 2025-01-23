@@ -1,4 +1,4 @@
-package com.naimrlet.eventfinder
+package com.naimrlet.eventfinder.home
 
 import android.webkit.WebView
 import android.webkit.WebViewClient

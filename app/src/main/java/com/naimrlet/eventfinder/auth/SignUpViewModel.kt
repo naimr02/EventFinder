@@ -1,4 +1,4 @@
-package com.naimrlet.eventfinder
+package com.naimrlet.eventfinder.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

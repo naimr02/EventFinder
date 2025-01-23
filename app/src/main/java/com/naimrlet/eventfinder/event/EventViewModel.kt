@@ -1,6 +1,5 @@
-package com.naimrlet.eventfinder
+package com.naimrlet.eventfinder.event
 
-import Event
 import androidx.lifecycle.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
